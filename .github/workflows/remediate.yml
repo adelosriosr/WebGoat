@@ -22,17 +22,8 @@ jobs:
       - name: FOD session login
         run: fcli fod session login --url ${{secrets.FOD_URL}} --client-id "${{secrets.FOD_CLIENTID}}" --client-secret "${{secrets.FOD_CLIENTSECRET}}"
 
-      - name: Apply remediations
-        run: |
-          ARTIFACT_ID=$(fcli ssc artifact ls --av "WebGoat_UCM:v2026.4" --output json | 
-            jq -r '
-              [.[] | select(.originalFileName | startswith("aviator_"))] | 
-              sort_by(.uploadDate) | 
-              last | 
-              .id
-            ')
-          echo "Latest aviator artifact ID: $ARTIFACT_ID"
-          fcli aviator ssc apply-remediations --artifact-id $ARTIFACT_ID
+      - name: Apply Aviator remediations
+        run: fcli fod aviator apply-remediations --rel "WebGoat_UCM:v2026.4" --source-dir .
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
